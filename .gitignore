@@ -1,2 +1,3 @@
 /.venv/
 /char_img/*.png
+*.pem
