@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 
+
 INPUT_DIR = "char_img"
 CHECKPOINT_DIR = "checkpoints"
 OUT_DIR = "out_imgs"
@@ -10,6 +11,7 @@ BATCH_SIZE = 256
 NOISE_DIM = 100
 EPOCHS = 50
 EXAMPLE_HEIGHT = 4
+CKPT_EVERY = 10
 
 def get_data(input_dir=INPUT_DIR, batch_size=BATCH_SIZE):
     file_ds = tf.data.Dataset.list_files(f"{input_dir}/*.png")
@@ -90,7 +92,7 @@ def train_step(real_images, gen, dis, gen_optimizer, dis_optimizer, batch_size=B
     gen_optimizer.apply_gradients(zip(gen_grad, gen.trainable_variables))
     dis_optimizer.apply_gradients(zip(dis_grad, dis.trainable_variables))
 
-def train(dataset, gen, dis, gen_opt, dis_opt, checkpoint, seed=None, epochs=EPOCHS, checkpoint_prefix=CHECKPOINT_DIR):
+def train(dataset, gen, dis, gen_opt, dis_opt, checkpoint, seed=None, epochs=EPOCHS, checkpoint_prefix=CHECKPOINT_DIR, ckpt_every=CKPT_EVERY):
     if seed is None:
         seed = tf.random.normal((EXAMPLE_HEIGHT ** 2, NOISE_DIM))
     checkpoint_image(gen, 0, seed)
@@ -99,7 +101,7 @@ def train(dataset, gen, dis, gen_opt, dis_opt, checkpoint, seed=None, epochs=EPO
         for image_batch in dataset:
             train_step(image_batch, gen, dis, gen_opt, dis_opt)
 
-        if (epoch + 1) % 15 == 0:
+        if (epoch + 1) % ckpt_every == 0:
             checkpoint.save(file_prefix=checkpoint_prefix + "/")
             checkpoint_image(gen, epoch+1, seed)
         end = time.time()
