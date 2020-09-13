@@ -18,7 +18,7 @@ def get_data(input_dir=INPUT_DIR, batch_size=BATCH_SIZE):
     def parse_image(filename):
         image = tf.io.read_file(filename)
         image = tf.image.decode_png(image)
-        image = tf.image.convert_image_dtype(image, dtype=tf.float16)
+        image = tf.image.convert_image_dtype(image, dtype=tf.float32)
         return image
     image_ds = file_ds.map(parse_image)
     return image_ds.batch(batch_size)
