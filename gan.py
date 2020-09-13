@@ -7,13 +7,14 @@ import matplotlib.pyplot as plt
 INPUT_DIR = "char_img"
 CHECKPOINT_DIR = "checkpoints"
 OUT_DIR = "out_imgs"
+BUFFER_SIZE = 10000
 BATCH_SIZE = 256
-NOISE_DIM = 100
-EPOCHS = 50
+NOISE_DIM = 128
+EPOCHS = 100
 EXAMPLE_HEIGHT = 4
 CKPT_EVERY = 10
 
-def get_data(input_dir=INPUT_DIR, batch_size=BATCH_SIZE):
+def get_data(input_dir=INPUT_DIR, buffer_size=BUFFER_SIZE, batch_size=BATCH_SIZE):
     file_ds = tf.data.Dataset.list_files(f"{input_dir}/*.png")
     def parse_image(filename):
         image = tf.io.read_file(filename)
@@ -21,7 +22,7 @@ def get_data(input_dir=INPUT_DIR, batch_size=BATCH_SIZE):
         image = tf.image.convert_image_dtype(image, dtype=tf.float32)
         return image
     image_ds = file_ds.map(parse_image)
-    return image_ds.batch(batch_size)
+    return image_ds.shuffle(buffer_size).batch(batch_size)
 
 def make_generator(input_dim=NOISE_DIM):
     model = tf.keras.Sequential()
@@ -92,7 +93,7 @@ def train_step(real_images, gen, dis, gen_optimizer, dis_optimizer, batch_size=B
     gen_optimizer.apply_gradients(zip(gen_grad, gen.trainable_variables))
     dis_optimizer.apply_gradients(zip(dis_grad, dis.trainable_variables))
 
-def train(dataset, gen, dis, gen_opt, dis_opt, checkpoint, seed=None, epochs=EPOCHS, checkpoint_prefix=CHECKPOINT_DIR, ckpt_every=CKPT_EVERY):
+def train(dataset, gen, dis, gen_opt, dis_opt, checkpoint, seed=None, epochs=EPOCHS, checkpoint_prefix=CHECKPOINT_DIR+"/ckpt", ckpt_every=CKPT_EVERY):
     if seed is None:
         seed = tf.random.normal((EXAMPLE_HEIGHT ** 2, NOISE_DIM))
     checkpoint_image(gen, 0, seed)
@@ -102,12 +103,12 @@ def train(dataset, gen, dis, gen_opt, dis_opt, checkpoint, seed=None, epochs=EPO
             train_step(image_batch, gen, dis, gen_opt, dis_opt)
 
         if (epoch + 1) % ckpt_every == 0:
-            checkpoint.save(file_prefix=checkpoint_prefix + "/")
+            checkpoint.save(file_prefix=checkpoint_prefix)
             checkpoint_image(gen, epoch+1, seed)
         end = time.time()
         print(f"Epoch {epoch+1:02d} in {end-start}")
 
-    checkpoint.save(file_prefix=checkpoint_prefix + "/")
+    checkpoint.save(file_prefix=checkpoint_prefix)
     checkpoint_image(gen, epoch+1, seed)
 
 def checkpoint_image(generator, epoch, test_input, out_dir=OUT_DIR):
