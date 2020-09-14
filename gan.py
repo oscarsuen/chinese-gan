@@ -3,7 +3,6 @@ import tensorflow as tf
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 
-
 INPUT_DIR = "char_img"
 CKPT_DIR = "checkpoints"
 OUT_DIR = "out_imgs"

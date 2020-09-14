@@ -4,3 +4,4 @@
 - `Pillow`
 - `matplotlib`
 - `tensorflow`
+- `tqdm`
