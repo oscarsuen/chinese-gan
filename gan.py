@@ -125,7 +125,7 @@ def train(dataset, gen, dis, gen_opt, dis_opt, ckpt, seed=None, start_epoch=0, e
         if (epoch + 1) % img_every == 0:
             checkpoint_image(gen, epoch+1, seed)
         end = time.time()
-        print(f"Epoch {epoch+1:02d} in {end-start}")
+        print(f"Epoch {epoch+1:03d} in {end-start}")
 
     checkpoint_image(gen, epoch+1, seed)
 
@@ -136,7 +136,7 @@ def checkpoint_image(gen, epoch, test_input, out_dir=OUT_DIR):
         plt.subplot(EXAMPLE_HEIGHT, EXAMPLE_HEIGHT, i+1)
         plt.imshow(predictions[i, :, :, 0] * 255, cmap="gray")
         plt.axis("off")
-    plt.savefig(f"{out_dir}/epoch_{epoch:02d}.png")
+    plt.savefig(f"{out_dir}/epoch_{epoch:03d}.png")
     plt.close(fig)
 
 def get_args():
