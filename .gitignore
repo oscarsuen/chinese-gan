@@ -1,4 +1,7 @@
 /.venv/
 /__pycache__/
 /char_img/*.png
+/out_imgs/*.png
+/checkpoints/*
+!/checkpoints/.gitkeep
 *.pem
